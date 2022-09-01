@@ -2,7 +2,9 @@ import IspyImage from './IspyImage';
 import Selector from './Selector';
 import Answer from './Answer';
 import GuessingBox from './GuessingBox';
+import dotenv from 'dotenv';
 
+dotenv.config()
 const answers = [];
 
 const answer1 = Answer({
@@ -28,6 +30,3 @@ answers.push(answer1);
 answers.push(answer2);
 
 const ispyImage = IspyImage(answers, Selector, GuessingBox);
-
-
-const selector = Selector('#ispy-image');

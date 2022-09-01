@@ -30,7 +30,6 @@ const GoalContainer = (ipsyImageImagePath) => {
   const generateGoals = (goalArray) => {
     const ispyImageElement = document.querySelector(IMAGE_QUERY_SELECTOR_STRING);
     const backgroundImage = ispyImageElement.style.backgroundImage;
-    console.log(backgroundImage);
     goalArray.forEach((goal) => {
       goal.setImage(ipsyImageImagePath)
       goal.generateGoal(getElement());

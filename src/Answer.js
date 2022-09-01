@@ -2,6 +2,7 @@ const Answer = (answerObject) => {
 
   const { name, coords } = answerObject;
   let image = null;
+  let ipsyImageObject = null;
 
   const getName = () => name;
   const getCoords = () => coords;
@@ -11,6 +12,10 @@ const Answer = (answerObject) => {
 
   const setImage = (imageToSet) => {
     image = imageToSet;
+  }
+
+  const setIpsyImageObject = (newIpsyImageObject) => {
+    ipsyImageObject = newIpsyImageObject
   }
 
   const getImage = () => image;
@@ -60,7 +65,9 @@ const Answer = (answerObject) => {
     console.log(`You are clicking on ${name}`)
   }
 
-
+  const attemptAnswer = (answerX, answerY) => {
+    console.log(name, answerX, answerY)
+  }
 
   return {
     getName,
@@ -71,6 +78,8 @@ const Answer = (answerObject) => {
     getImage,
     generateGoal,
     generateAnswerSpace,
+    setIpsyImageObject,
+    attemptAnswer,
   }
 }
 

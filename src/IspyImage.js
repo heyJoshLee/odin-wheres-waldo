@@ -29,8 +29,9 @@ const IspyImage = (correctAnswers, SelectorFactoryFunction, GuessingBoxFactoryFu
 
   const element = createImageElement();
   const goalContainer = GoalContainer(getImagePath());
-  const selector = SelectorFactoryFunction()
-  const guessingBox = GuessingBoxFactoryFunction()
+  const selector = SelectorFactoryFunction();
+  const guessingBox = GuessingBoxFactoryFunction(correctAnswers, selector)
+
   goalContainer.generateElement();
   goalContainer.generateGoals(correctAnswers);
   correctAnswers.forEach((answer) => {
@@ -38,12 +39,11 @@ const IspyImage = (correctAnswers, SelectorFactoryFunction, GuessingBoxFactoryFu
   });
 
   const startAnswering = () => {
-    console.log('hi')
-    console.log(selector.getLeft())
+    console.log('start aswering')
     guessingBox.open(selector.getTop(), selector.getLeft());
+    selector.setUpdatingPosition(false);
   }
 
-  console.log(element)
   element.style.backgroundColor = 'red'
   element.addEventListener('click', startAnswering);
 
