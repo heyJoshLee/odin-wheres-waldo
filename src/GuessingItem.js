@@ -1,16 +1,19 @@
+import { lightGrey, darkGray, sansFont } from './Styles';
 
-const GuessingItem = (answerObject, selector) => {
+const GuessingItem = (answerObject, guessingBoxElement, getCurrentCorrectAnswer, checkForGameEnd) => {
 
   const createElement = () => {
     const guessingElement = document.createElement('div');
     guessingElement.classList.add('guessing-item');
     guessingElement.textContent = answerObject.getName();
-    guessingElement.style.fontFamily = "Verdana, sans-serif";
-    const originalBackgroundColor = "#2c3e50"
+    guessingElement.style.fontFamily = sansFont;
+    const originalBackgroundColor = darkGray;
     guessingElement.style.backgroundColor = originalBackgroundColor;
     guessingElement.style.padding = "20px"
+
+
     guessingElement.addEventListener('mouseenter', () => {
-      guessingElement.style.backgroundColor = "#7f8c8d"
+      guessingElement.style.backgroundColor = lightGrey;
       guessingElement.style.cursor = "pointer";
     });
 
@@ -20,7 +23,11 @@ const GuessingItem = (answerObject, selector) => {
     });
 
     guessingElement.addEventListener('click', () => {
-      answerObject.attemptAnswer(selector.getLeft(), selector.getTop());
+      const correctAnswer = getCurrentCorrectAnswer();
+      const guess = answerObject.getName()
+      answerObject.attemptAnswer(correctAnswer, guess);
+      guessingBoxElement.style.visibility = 'hidden';
+      checkForGameEnd();
     })
 
     const answeredCorrectly = () => {

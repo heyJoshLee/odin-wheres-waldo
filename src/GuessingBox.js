@@ -1,9 +1,8 @@
 import GuessingItem from "./GuessingItem";
+import { darkGray, white } from './Styles';
 
-const GuessingBox = (answerArray, selector) => {
-
-  let element;
-  const getElement = () => element;
+const GuessingBox = (answerArray, getCurrentCorrectAnswer, stopGame) => {
+  let element = 'koj';
 
   const open = (top, left) => {
     const offset = 40;
@@ -12,11 +11,26 @@ const GuessingBox = (answerArray, selector) => {
     element.style.visibility = 'visible';
   }
 
+  const close = () => {
+    element.style.visibility = 'hidden';
+  }
+
+  const checkForGameEnd = () => {
+
+    let allAnsweredCorrectly = answerArray.every((answer) => {
+      return answer.getHasAnsweredCorrectly();
+    });
+
+    if (allAnsweredCorrectly) {
+      stopGame();
+    }
+  }
+
   const createElement = () => {
     const boxElement = document.createElement('div');
     boxElement.id = 'guessing-box';
-    boxElement.style.backgroundColor = '#34495e';
-    boxElement.style.color = '#ecf0f1';
+    boxElement.style.backgroundColor = darkGray;
+    boxElement.style.color = white;
     boxElement.style.width = '200px';
     boxElement.style.height = '300px';
     boxElement.style.position = 'fixed';
@@ -25,30 +39,28 @@ const GuessingBox = (answerArray, selector) => {
     boxElement.style.display = 'grid';
     boxElement.style.rowGap = '2px';
 
-    //boxElement.style.visibility = 'hidden';
+    boxElement.style.visibility = 'hidden';
 
     document.body.appendChild(boxElement);
     return boxElement
   }
 
   const createAnswerChoices = () => {
-    //
     answerArray.forEach((answer) => {
-      const item = GuessingItem(answer, selector);
+      const item = GuessingItem(answer, element, getCurrentCorrectAnswer, checkForGameEnd);
       const itemElement = item.createElement();
       element.appendChild(itemElement);
     })
 
   }
 
-
   element = createElement();
   createAnswerChoices();
 
 
-
   return {
     open,
+    close,
   }
 }
 

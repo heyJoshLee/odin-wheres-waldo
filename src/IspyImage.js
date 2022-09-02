@@ -1,9 +1,11 @@
 import GoalContainer from './GoalContainer';
-const IspyImage = (correctAnswers, SelectorFactoryFunction, GuessingBoxFactoryFunction) => {
+const IspyImage = (correctAnswers, SelectorFactoryFunction, GuessingBoxFactoryFunction, stopGame) => {
   const WIDTH = 1200;
   const HEIGHT = 700;
   const getWidth = () => WIDTH;
   const getHeight = () => HEIGHT;
+  let currentCorrectAnswer = null;
+  const getCurrentCorrectAnswer = () => currentCorrectAnswer;
 
   const imagePathChoices = ['./assets/games.jpeg'];
   const imagePath = imagePathChoices[0];
@@ -15,12 +17,14 @@ const IspyImage = (correctAnswers, SelectorFactoryFunction, GuessingBoxFactoryFu
     imageElement.style.backgroundRepeat = 'no-repeat';
     imageElement.style.backgroundImage = `url('${imagePath}')`;
     imageElement.style.boxSizing = 'border-box';
+    imageElement.style.position = 'relative';
+    imageElement.classList.add('open-guessing-box');
 
     imageElement.style.width = `${WIDTH}px`;
     imageElement.style.height = `${HEIGHT}px`;
     imageElement.id = 'ispy-image';
 
-    document.body.appendChild(imageElement);
+    document.querySelector('#left-pane').appendChild(imageElement);
     return imageElement;
   }
 
@@ -30,7 +34,7 @@ const IspyImage = (correctAnswers, SelectorFactoryFunction, GuessingBoxFactoryFu
   const element = createImageElement();
   const goalContainer = GoalContainer(getImagePath());
   const selector = SelectorFactoryFunction();
-  const guessingBox = GuessingBoxFactoryFunction(correctAnswers, selector)
+  const guessingBox = GuessingBoxFactoryFunction(correctAnswers, getCurrentCorrectAnswer, stopGame);
 
   goalContainer.generateElement();
   goalContainer.generateGoals(correctAnswers);
@@ -38,22 +42,33 @@ const IspyImage = (correctAnswers, SelectorFactoryFunction, GuessingBoxFactoryFu
     answer.generateAnswerSpace(element);
   });
 
-  const startAnswering = () => {
-    console.log('start aswering')
-    guessingBox.open(selector.getTop(), selector.getLeft());
-    selector.setUpdatingPosition(false);
+
+  document.body.addEventListener('click', (e) => {
+    if (e.target.classList.contains('open-guessing-box')) {
+      currentCorrectAnswer = e.target.getAttribute('data-character-name');
+      guessingBox.open(selector.getTop(), selector.getLeft());
+    } else {
+      guessingBox.close();
+    }
+  })
+
+  const toggleCursor = (e) => {
+    const cursor = e.target.style.cursor;
+    e.target.style.cursor = 'pointer';
   }
 
+  element.addEventListener('mouseenter', toggleCursor);
+
+
+
   element.style.backgroundColor = 'red'
-  element.addEventListener('click', startAnswering);
-
-
-
+  //element.addEventListener('click', startAnswering);
 
   return {
     imagePath,
     getHeight,
     getWidth,
+    getCurrentCorrectAnswer,
   }
 }
 

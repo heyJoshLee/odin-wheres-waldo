@@ -1,5 +1,3 @@
-import GuessingBox from './GuessingBox';
-
 const Selector = (querySelector) => {
   const WIDTH = 100;
   const HEIGHT = 100;

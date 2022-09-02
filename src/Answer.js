@@ -1,49 +1,57 @@
 const Answer = (answerObject) => {
 
-  const { name, coords } = answerObject;
+  const { name, coords, preview } = answerObject;
   let image = null;
   let ipsyImageObject = null;
+  let goalElement;
+  let hasAnsweredCorrectly = false;
+
+  const getHasAnsweredCorrectly = () => hasAnsweredCorrectly;
+
+  const getGoalElement = () => goalElement;
+
+  const reset = () => {
+    console.log('should reset')
+    hasAnsweredCorrectly = false;
+    console.log(getGoalElement())
+    getGoalElement().style.opacity = 1;
+  }
 
   const getName = () => name;
   const getCoords = () => coords;
-
-  const width = () => coords[1][0] - coords[0][0];
-  const height = () => coords[2][1] - coords[0][1];
-
+  const getImage = () => image;
   const setImage = (imageToSet) => {
     image = imageToSet;
   }
+
+  const width = () => coords[1][0] - coords[0][0];
+  const height = () => coords[2][1] - coords[0][1];
 
   const setIpsyImageObject = (newIpsyImageObject) => {
     ipsyImageObject = newIpsyImageObject
   }
 
-  const getImage = () => image;
 
   const generateGoal = (goalContainerElement) => {
-    const ZOOM = 1000;
-    const goalElement = document.createElement('div');
-    goalElement.classList.add('goal-item')
+    const goalElementDiv = document.createElement('div');
+    goalElementDiv.classList.add('goal-item')
     const goalContainerWidth = goalContainerElement.style.width.split('p')[0];
     const goalContainerHeight = goalContainerElement.style.height.split('p')[0];
     const goalWidth = goalContainerWidth / 5;
     const goalHeight = goalContainerHeight - 5;
-    goalElement.style.width = `${goalWidth}px`;
-    goalElement.style.height = `${goalHeight}px`;
-    goalElement.style.border = '1px solid black';
-    goalElement.style.boxSizing = 'border-box';
-    goalElement.style.backgroundSize = `${ZOOM}% ${ZOOM}%`;
-    goalElement.style.backgroundRepeat = 'no-repeat';
-    goalElement.style.backgroundImage = `url('${image}')`;
-    const offSetX = -50;
-    const offSetY = -100
-    const backgroundPositionX = (-getCoords()[0][0] + offSetX);
-    const backgroundPositionY = (-getCoords()[0][1] + offSetY);
-    //console.log(backgroundPositionX);
-    //console.log(backgroundPositionY)
+    goalElementDiv.style.width = `${goalWidth}px`;
+    goalElementDiv.style.height = `${goalHeight}px`;
+    goalElementDiv.style.border = '1px solid black';
+    goalElementDiv.style.boxSizing = 'border-box';
+    goalElementDiv.style.backgroundSize = `${preview.backgroundSize}% ${preview.backgroundSize}%`;
+    goalElementDiv.style.backgroundRepeat = 'no-repeat';
+    goalElementDiv.style.backgroundImage = `url('${image}')`;
+    const backgroundPositionX = preview.coords[0];
+    const backgroundPositionY = preview.coords[1];
 
-    goalElement.style.backgroundPosition = `${backgroundPositionX}px ${backgroundPositionY}px`;
-    goalContainerElement.appendChild(goalElement);
+    goalElementDiv.style.backgroundPosition = `${backgroundPositionX}px ${backgroundPositionY}px`;
+    goalContainerElement.appendChild(goalElementDiv);
+    goalElement = goalElementDiv;
   }
 
   const generateAnswerSpace = (ipsyImageElement) => {
@@ -56,17 +64,27 @@ const Answer = (answerObject) => {
     answerElement.style.height = `${height()}px`;
     answerElement.style.top = `${getCoords()[0][1]}px`;
     answerElement.style.left = `${getCoords()[0][0]}px`
-    answerElement.style.border = '5px solid red';
-    answerElement.addEventListener('click', setToCorrectAnswer)
+    answerElement.dataset.characterName = name;
+    //answerElement.style.border = '5px solid red';
+    answerElement.classList.add('open-guessing-box');
+
     ipsyImageElement.appendChild(answerElement);
   }
 
-  const setToCorrectAnswer = () => {
-    console.log(`You are clicking on ${name}`)
-  }
 
-  const attemptAnswer = (answerX, answerY) => {
-    console.log(name, answerX, answerY)
+  const attemptAnswer = (correctAnswer, guessChoice) => {
+
+    const isAnswerRight = (correctAnswer === guessChoice);
+    if (isAnswerRight) {
+      console.log('you got it correct')
+      getGoalElement().style.opacity = .20;
+      hasAnsweredCorrectly = true;
+    } else {
+      console.log('wrong')
+    }
+
+
+    return isAnswerRight;
   }
 
   return {
@@ -80,6 +98,8 @@ const Answer = (answerObject) => {
     generateAnswerSpace,
     setIpsyImageObject,
     attemptAnswer,
+    getHasAnsweredCorrectly,
+    reset,
   }
 }
 
