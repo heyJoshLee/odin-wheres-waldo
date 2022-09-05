@@ -1,14 +1,18 @@
 import ScoreItem from "./ScoreItem";
 import { sansFont, white } from "./Styles";
-const ScoreContainer = () => {
+const ScoreContainer = (formatTimeToString) => {
 
   let scores = [];
 
   const setScores = (scoresArray) => {
-    scores = scoresArray;
+    scores = scoresArray.map((score) => {
+      return {
+        ...score,
+        score: formatTimeToString(score.score)
+      }
+    });
     createScoreElements();
   }
-
   const createElement = () => {
     const rightPane = document.querySelector('#right-pane');
 

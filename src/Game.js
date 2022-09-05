@@ -4,23 +4,24 @@ import Answer from './Answer';
 import GuessingBox from './GuessingBox';
 import fireStoreConfig from '../firestore.config';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
+import { getFirestore, collection, getDocs, doc, setDoc, addDoc, limit, query, orderBy } from 'firebase/firestore/lite';
 import EndScreen from './EndScreen';
-import Timer from './Timer';
 import ScoreContainer from './ScoreContainer';
 import { darkGray } from './Styles';
 import WelcomeScreen from './WelcomeScreen';
-
+import LoadingScreen from './LoadingScreen';
 const Game = () => {
-  const answers = [];
-  const scores = [];
+  let answers = [];
+  let scores = [];
   let playerName;
   const getPlayerName = () => playerName;
   const setPlayerName = (newName) => playerName = newName;
   let startTime = null;
   let gameContainer;
   let welcomeScreen;
-  let timer;
+  let db;
+
+  const loadingScreen = LoadingScreen()
 
   const createGameContainer = () => {
     const gameContainer = document.createElement('div');
@@ -41,33 +42,49 @@ const Game = () => {
     return gameContainer;
   }
 
+  const formatTimeToString = (millis) => {
+    const milliseconds = millis % 1000
+    const seconds = Math.floor((millis / 1000) % 60)
+    const minutes = Math.floor((millis / (60 * 1000)) % 60)
+    const hours = Math.floor((millis / (3600 * 1000)) % 3600)
+    return `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds
+      }.${milliseconds}`
+  }
+
 
   const stopGame = () => {
-    const time = Date.now() - startTime;
-    const timeInSeconds = (time / 1000).toFixed(2)
-    endScreen.setScore(timeInSeconds);
-    updateScores(timeInSeconds);
+    const rawTime = Date.now() - startTime;
+    endScreen.setScore(formatTimeToString(rawTime));
+    updateScores(rawTime);
     endScreen.toggle();
   }
 
-  const updateScores = (timeInSeconds) => {
+  const updateScores = (rawTime) => {
     const isPlayerNameAlreadyInScores = () => {
       let playerNames = scores.map((s) => s.name)
       return playerNames.includes(getPlayerName());
     }
 
-    const updateExistingPlayersScore = (playerName, newScore) => {
-      console.log(`update ${playerName}'s score to ${newScore}`);
+    const updateExistingPlayersScore = async (playerName, newScore, db) => {
+      const playerScoreObject = scores.find(score => score.name === playerName)
+      const { id, name } = playerScoreObject;
+      await setDoc(doc(db, 'highScores', id), {
+        name,
+        score: newScore
+      });
     }
 
-    const addNewPlayerScore = (playerName, newScore) => {
-      console.log(`Adding player: ${playerName} with a score of ${newScore}`);
+    const addNewPlayerScore = async (playerName, newScore, db) => {
+      await addDoc(collection(db, 'highScores'), {
+        name: playerName,
+        score: newScore
+      });
     }
 
     if (isPlayerNameAlreadyInScores()) {
-      updateExistingPlayersScore(getPlayerName(), timeInSeconds);
+      updateExistingPlayersScore(getPlayerName(), rawTime, db);
     } else {
-      addNewPlayerScore(getPlayerName(), timeInSeconds)
+      addNewPlayerScore(getPlayerName(), rawTime, db)
     }
 
   }
@@ -77,119 +94,57 @@ const Game = () => {
     resetAnswers();
     welcomeScreen.close();
     endScreen.close();
-    timer.start();
   }
 
   const resetAnswers = () => answers.forEach((answer) => answer.reset());
 
-  const initialize = () => {
+  const initialize = async () => {
+    loadingScreen.open();
     const firebaseConfig = fireStoreConfig;
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app)
+    db = getFirestore(app)
     gameContainer = createGameContainer();
-    welcomeScreen = WelcomeScreen(setPlayerName, startGame);
 
-    // const fetchAnswersFromDatabase = (db) => {
-    //   console.log('getting answers')
-    //   const answersCol = collection(db, 'answers');
-    //   const answerSnapshot = await getDocs(answersCol);
-    //   const answerList = answerSnapshot.docs.map(doc => doc.data());
-    //   console.log(answerList);
-    //   return answerList;
-    // }
+    const fetchAnswersFromDatabase = async (db) => {
+      const answersCollectionRef = collection(db, 'answers');
+      const q = query(answersCollectionRef, limit(1));
+      const querySnapshot = await getDocs(q);
+      let answerDocuments = [];
+      querySnapshot.forEach((doc) => {
+        answerDocuments.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      })
 
-    const populateWithLocalTestingAnswers = () => {
-      const answer1 = Answer({
-        name: 'sebastian',
-        coords: [
-          [77, 100],
-          [184, 100],
-          [77, 228],
-          [184, 228]],
-        preview: {
-          coords: [-150, -200],
-          backgroundSize: 1000
-        }
-      });
-
-      const answer2 = Answer({
-        name: "limbo",
-        coords: [
-          [705, 488],
-          [800, 488],
-          [705, 645],
-          [800, 645]
-        ],
-        preview: {
-          coords: [-920, -650],
-          backgroundSize: 700
-        }
-      });
-
-      const answer3 = Answer({
-        name: "alien humanoid",
-        coords: [
-          [470, 160],
-          [530, 160],
-          [470, 200],
-          [530, 200]
-        ],
-        preview: {
-          coords: [-1075, -350],
-          backgroundSize: 1200
-        }
-      });
-
-      const answer4 = Answer({
-        name: "fez",
-        coords: [
-          [400, 420],
-          [460, 420],
-          [400, 480],
-          [460, 480]
-        ],
-        preview: {
-          coords: [-920, -960],
-          backgroundSize: 1200
-        }
-      });
-
-
-      const answer5 = Answer({
-        name: "isaac",
-        coords: [
-          [690, 180],
-          [750, 180],
-          [690, 250],
-          [750, 250]
-        ],
-        preview: {
-          coords: [-1580, -420],
-          backgroundSize: 1200
-        }
-      });
-
-      answers.push(answer1);
-      answers.push(answer2);
-      // answers.push(answer3);
-      // answers.push(answer4);
-      // answers.push(answer5);
-
-      const score1 = { name: 'josh', score: 23.32 }
-      const score2 = { name: 'josh2', score: 10.11 }
-      const score3 = { name: 'josh3', score: 50.33 }
-      scores.push(score1);
-      scores.push(score2);
-      scores.push(score3);
+      let answerObjectArray = answerDocuments.map((data) => { return Answer(data) });
+      answers = answerObjectArray;
+      loadingScreen.close();
+      welcomeScreen = WelcomeScreen(setPlayerName, startGame);
+      return answers;
     }
-
-    populateWithLocalTestingAnswers();
-    const ispyImage = IspyImage(answers, Selector, GuessingBox, stopGame);
-    timer = Timer();
-    const scoreContainer = ScoreContainer();
+    const fetchScoresFromDatabase = async (db) => {
+      const scoresCollectionRef = collection(db, 'highScores');
+      const q = query(scoresCollectionRef, orderBy('score'), limit(10));
+      const querySnapshot = await getDocs(q);
+      let scoreDocuments = []
+      querySnapshot.forEach((doc) => {
+        scoreDocuments.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      })
+      scores = scoreDocuments;
+      return scores;
+    }
+    await fetchAnswersFromDatabase(db);
+    await fetchScoresFromDatabase(db);
+    IspyImage(answers, Selector, GuessingBox, stopGame);
+    const scoreContainer = ScoreContainer(formatTimeToString);
     scoreContainer.setScores(scores);
-
   }
+
+
 
   const endScreen = EndScreen(scores, getPlayerName, startGame);
   endScreen.toggle();

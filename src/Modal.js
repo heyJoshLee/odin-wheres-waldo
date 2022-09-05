@@ -12,8 +12,8 @@ const Modal = () => {
 
 
   const createBackground = () => {
-    const background = document.createElement('dov');
-    background.id = 'modal-background';
+    const background = document.createElement('div');
+    background.classList.add('modal-background');
     background.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
     background.style.position = 'fixed';
     background.style.top = '0px';
@@ -30,7 +30,7 @@ const Modal = () => {
 
   const createModalContainer = (backgroundElement) => {
     const messageModalElement = document.createElement('div');
-    messageModalElement.id = 'message-modal';
+    messageModalElement.classList.add('message-modal');
     messageModalElement.style.width = '1200px';
     messageModalElement.style.height = '800px';
     messageModalElement.style.backgroundColor = '#ecf0f1';

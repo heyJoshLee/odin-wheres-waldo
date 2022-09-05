@@ -1,6 +1,6 @@
 const Answer = (answerObject) => {
 
-  const { name, coords, preview } = answerObject;
+  const { name, coords, preview, id } = answerObject;
   let image = null;
   let ipsyImageObject = null;
   let goalElement;
@@ -10,11 +10,13 @@ const Answer = (answerObject) => {
 
   const getGoalElement = () => goalElement;
 
+  const getId = () => id;
+
   const reset = () => {
-    console.log('should reset')
     hasAnsweredCorrectly = false;
-    console.log(getGoalElement())
-    getGoalElement().style.opacity = 1;
+    if (getGoalElement()) {
+      getGoalElement().style.opacity = 1;
+    }
   }
 
   const getName = () => name;
@@ -76,7 +78,6 @@ const Answer = (answerObject) => {
 
     const isAnswerRight = (correctAnswer === guessChoice);
     if (isAnswerRight) {
-      console.log('you got it correct')
       getGoalElement().style.opacity = .20;
       hasAnsweredCorrectly = true;
     } else {
@@ -100,6 +101,7 @@ const Answer = (answerObject) => {
     attemptAnswer,
     getHasAnsweredCorrectly,
     reset,
+    getId
   }
 }
 

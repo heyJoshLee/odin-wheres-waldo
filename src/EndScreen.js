@@ -21,10 +21,7 @@ const EndScreen = (scores, getPlayerName, startGame) => {
 
   const setScoreMessage = (score) => {
     scoreMessageContainer.textContent = `Your time is ${score}.`;
-    console.log(scores);
   }
-
-
 
   const createModalContent = (modalElement) => {
 

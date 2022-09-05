@@ -4,7 +4,18 @@ const Timer = () => {
   let currentTime = 0;
   let isRunning;
 
-  const updateCurrentTimeHTML = () => element.textContent = currentTime;
+  const updateCurrentTimeHTML = () => {
+    element.textContent = formatTimeToString();
+  }
+
+  const formatTimeToString = () => {
+    const minutes = Math.floor(currentTime / 60);
+    const seconds = currentTime % 60;
+    const padTo2Digits = (num) => {
+      return num.toString().padStart(2, '0');
+    }
+    return `${padTo2Digits(minutes)}:${padTo2Digits(seconds)}`;
+  }
 
   const createElement = () => {
     const heading = document.createElement('div');
