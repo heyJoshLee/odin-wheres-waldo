@@ -107,7 +107,7 @@ const Game = () => {
 
     const fetchAnswersFromDatabase = async (db) => {
       const answersCollectionRef = collection(db, 'answers');
-      const q = query(answersCollectionRef, limit(1));
+      const q = query(answersCollectionRef, limit(5));
       const querySnapshot = await getDocs(q);
       let answerDocuments = [];
       querySnapshot.forEach((doc) => {
